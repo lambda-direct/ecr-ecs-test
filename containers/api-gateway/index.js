@@ -1,4 +1,4 @@
-import http from 'http';
+const http = require('http')
 
 const PORT = 3000;
 
@@ -11,9 +11,10 @@ const server = http.createServer((req, res) => {
 	const serviceName = req.url.split('/')[1];
 
 	if (['service1', 'service2'].includes(serviceName)) {
-		http.request(
+		const creq = http.request(
 			{
-				host: `http:/${req.url}`,
+				host: `${serviceName}`,
+				path: `${req.url}`.split(`/${serviceName}`)[1],
 				port: PORTS_MAP[serviceName],
 				method: req.method,
 				headers: req.headers,
@@ -26,6 +27,8 @@ const server = http.createServer((req, res) => {
 				serviceResponse.pipe(res);
 			},
 		);
+
+		req.pipe(creq)
 	} else {
 		res.writeHead(404, { 'Content-Type': 'application/json' });
 		res.end(
